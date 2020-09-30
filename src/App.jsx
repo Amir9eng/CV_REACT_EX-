@@ -7,39 +7,49 @@ export const generateId = () => Math.random().toString(36).substring(2, 6)
 
 const App = () => {
   const [persons, setPersons] = useState([
-    { name: 'Arto Hellas' }
+    { id: 1, name: 'Arto Hellas', phoneNumber: '08099543211' },
+    { id: 2, name: 'Ada LoveLace', phoneNumber: '39-44-556013' },
+    { id: 3, name: 'Dan Abramov', phoneNumber: '217-16-660040' },
+    { id: 4, name: 'Mary Poppins', phoneNumber: '616-39-374784' }
   ])
   const [newName, setNewName] = useState('')
 
-  const addNewName = (e) => {
+  const [newNumber, setNewNumber] = useState('')
+
+  const addNewContact = (e) => {
     e.preventDefault();
 
-    if (Object.keys(persons).some(personId => {
-      const person = persons[personId]
-      return person.name.toLowerCase() === newName.trim().toLowerCase()
-    })) {
+    if (persons.some(person => person.name.toLowerCase().trim() === newName.trim().toLowerCase())) {
+
       setNewName('')
-      return window.alert(`${newName} is already added to phonebook`)
+      setNewNumber('')
+
+      return window.alert(`${newName} has already been added to the phonebook `)
 
     }
 
-    const newInput = {}
-    newInput[generateId()] = {
-      name: newName
+
+    const newInput = {
+      id: generateId(),
+      name: newName,
+      phoneNumber: newNumber
     }
-    setPersons({
+    setPersons([
       ...persons,
-      ...newInput
-
-    })
+      newInput
+    ])
+    setNewNumber('')
     setNewName('')
   }
   return (
     <div>
       <h2>Phonebook</h2>
-      <form onSubmit={e => addNewName(e)}>
+      <form onSubmit={e => addNewContact(e)}>
         <div>
           name: <input value={newName} onChange={e => setNewName(e.target.value)} />
+        </div>
+        <div>
+          number: <input value={newNumber} onChange={e => setNewNumber(e.target.value)} />
         </div>
         <div>
           <button type="submit">add</button>
@@ -47,12 +57,8 @@ const App = () => {
       </form>
       <h2>Numbers</h2>
       <p>{
-        Object.keys(persons).map(
-          personId => {
-            const person = persons[personId]
-            return <p key={personId}>{person.name}</p>
-          }
-        )
+        persons.map(person => <p key={person.id}><span>{person.name}</span> &nbsp; <span>{person.phoneNumber}</span>
+        </p>)
       }
       </p>
     </div>
