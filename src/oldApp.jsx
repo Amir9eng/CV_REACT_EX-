@@ -1,9 +1,4 @@
 import React, { useState } from 'react'
-import SearchForm from "./components/SearchForm"
-import PersonForm from "./components/PersonForm"
-import Persons from "./components/Persons"
-
-
 import './App.css';
 
 
@@ -17,18 +12,23 @@ const App = () => {
     { id: 3, name: 'Dan Abramov', phoneNumber: '217-16-660040' },
     { id: 4, name: 'Mary Poppins', phoneNumber: '616-39-374784' }
   ])
-  const [query, setQuery] = useState("")
+  const [filtered, setFiltered] = useState([])
 
-  const personToShow = query.trim() ? persons.filter(person => person.name.toLowerCase().indexOf(query.toLowerCase().trim()) > -1) : persons
+  const handleSearch =  (e) => {
+    const query = e.target.value 
 
+    if(!query.trim()) setFiltered(() => [] )
+    setFiltered((persons)=>{
+      persons.filter( person => person.name.trim().toLowerCase().indexOf(query.trim().toLowerCase()) > -1)
+    })
+
+  }
   const [newName, setNewName] = useState('')
 
   const [newNumber, setNewNumber] = useState('')
 
   const addNewContact = (e) => {
     e.preventDefault();
-    let newName = e.target.name.value
-    let newNumber = e.target.phoneNumber.value
 
     if (persons.some(person => person.name.toLowerCase().trim() === newName.trim().toLowerCase())) {
 
@@ -55,19 +55,26 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <SearchForm handleSearch ={e => addNewContact(e)} />
-      <input id="search" type="text" placeholder="Search Contact" value={query} onChange={(e) => setQuery(e.target.value)} />
-      <PersonForm addNewContact= {addNewContact} newName= {newName} newNumber= {newNumber} setNewName= {setNewName} setNewNumber= {setNewNumber} />
+      <input type= "search"  onChange={handleSearch} />
+      <form onSubmit={e => addNewContact(e)}>
+        <div>
+          name: <input value={newName} onChange={e => setNewName(e.target.value)} />
+        </div>
+        <div>
+          number: <input value={newNumber} onChange={e => setNewNumber(e.target.value)} />
+        </div>
+        <div>
+          <button type="submit">add</button>
+        </div>
+      </form>
       <h2>Numbers</h2>
-      <Persons personToShow={personToShow}/>
-      {/* {
-
-        personToShow.map(person => (<p key={person.id}><span>{person.name} &nbsp; </span><span>{person.phoneNumber}</span></Persons>))
-      } */}
+      {
+        filtered.length ? filtered.map(person => (<p key={person.id}><span>{person.name} &nbsp;</span> <span>{person.phoneNumber}</span></p>))
+        : persons.map(person => (<p key={person.id}><span>{person.name} &nbsp;</span> <span>{person.phoneNumber}</span></p>))
+      }
     </div>
   )
 }
 
 export default App
-
 
