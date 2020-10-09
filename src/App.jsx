@@ -1,45 +1,55 @@
+import React, { useState, useEffect } from 'react'
+import Axios from 'axios';
 
-import React, { useState } from 'react'
+import "./App.css"
 
-export const generateId = () => Math.random().toString(36).substring(2, 6)
+const OneCountry = ({ country }) => (
+
+  <div className="one-country">
+    <h2>{country.name}</h2>
+
+    <p><strong>Capital</strong> - {country.capital}
+    </p>
+
+    <p><strong>Population</strong> - {country.population}
+    </p>
+        
+    <h2>Languages</h2>
+    <ul>
+      {
+        country.languages.map(language => (<li key={language.name}>{language.name}</li>))
+      }
+    </ul>
+    <img src={country.flag} alt={`${country.name}-flag`} />
+  </div>
+)
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas' }
-  ])
-  const [newName, setNewName] = useState('')
+  const [countries, setCountries] = useState([])
+  const [filtered, setFiltered] = useState("")
 
-  const addNewName = (e) => {
-    e.preventDefault();
-    const newName = {}
-    newInput[generateId()] = {
-      name: newName
-    }
-    
-    setPersons({
-      ...persons,
-      ...newInput
-    })
-    setNewName('')
-  }
-  
+  useEffect(() => {
+    Axios.get('https://restcountries.eu/rest/v2/all')
+      .then(res => setCountries(res.data))
+      .catch(error => alert(`fetching failed, ${error}`))
+  }, [])
+
+  const countriesToShow = filtered.trim() ?
+    countries.filter(country => country.name.toLowerCase().indexOf(filtered.toLowerCase().trim()) > -1) : []
 
   return (
-    <div>
-      <h2>Phonebook</h2>
-      <form onSubmit={e => addNewName(e)}>
-        <div>
-        name: <input />
+    <div className="App">
+      <div className="country-to-show">
+        <input type="search" placeholder="Find Countries" value={filtered} onChange={e => setFiltered(e.target.value)} />
+        <div className="screen">
+          {(countriesToShow.length === 1) &&
+            <OneCountry country={countriesToShow[0]} />
+          }
+          {(countriesToShow.length>1 && countriesToShow.length <= 10) && countriesToShow.map (country => (<div style={{cursor:"pointer"}} className="country" key={country.name}>{country.name}</div>))
+          }
+          { countriesToShow.length > 10  &&  <center>Too many matches, specify an addition filter...</center> }
         </div>
-       <div>
-          <button type="submit">add</button>
-       </div>
-
-       </form>
-    <h2>Numbers</h2>
-  <p>
-    {persons.map(person => <span>{person.name}</span>)}
-  </p>
+      </div>
     </div>
   )
 }
@@ -47,4 +57,3 @@ const App = () => {
 export default App;
 
 
-    
